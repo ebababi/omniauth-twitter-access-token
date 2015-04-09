@@ -84,8 +84,8 @@ module OmniAuth
         #   raise ArgumentError.new("Access token doesn't belong to the client.")
         # end
 
-        # Instead of calling super, duplicate the functionlity, but change the provider to 'facebook'.
-        # This is done in order to preserve compatibilty with the regular facebook provider
+        # Instead of calling super, duplicate the functionlity, but change the provider to 'twitter'.
+        # This is done in order to preserve compatibilty with the regular Twitter provider
         hash = auth_hash
         hash[:provider] = "twitter"
         self.env['omniauth.auth'] = hash
