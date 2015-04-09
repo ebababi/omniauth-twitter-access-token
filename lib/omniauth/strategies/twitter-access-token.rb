@@ -52,7 +52,7 @@ module OmniAuth
       end
 
       def raw_info
-        @raw_info ||= JSON.parse(access_token.get('/1.1/account/verify_credentials.json?include_entities=false&skip_status=true').body) || {}
+        @raw_info ||= JSON.parse(verify_credentials.body) || {}
       end
 
       def client
@@ -76,13 +76,11 @@ module OmniAuth
         end
 
         self.access_token = build_access_token
-        #self.access_token = self.access_token.refresh! if self.access_token.expired?
 
-        # Validate that the token belong to the application
-        # app_raw = self.access_token.get('/app').parsed
-        # if app_raw["id"] != options.client_id
-        #   raise ArgumentError.new("Access token doesn't belong to the client.")
-        # end
+        # Validate the token
+        if verify_credentials.is_a? ::Net::HTTPClientError
+          fail ::OAuth::Problem.new raw_info['errors'][0]['message'], verify_credentials, access_token.params
+        end
 
         # Instead of calling super, duplicate the functionlity, but change the provider to 'twitter'.
         # This is done in order to preserve compatibilty with the regular Twitter provider
@@ -130,6 +128,10 @@ module OmniAuth
         else
           original_url
         end
+      end
+
+      def verify_credentials
+        @verify_credentials ||= access_token.get('/1.1/account/verify_credentials.json?include_entities=false&skip_status=true')
       end
 
     end
